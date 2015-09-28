@@ -1,0 +1,18 @@
+//View 1
+//create view weight as select person.pid, fname, lname from person inner join body_composition on person.pid = body_composition.pid where weight > 140;     
+SELECT * FROM weight;
+
+//View 2
+//create view BMI as select fname, lname, round(703 * weight / pow(height, 2)) as bmi from weight inner join body_composition on weight.pid = body_composition.pid where weight > 150;
+SELECT * FROM bmi;
+
+//Query 3
+select university_name, city from university where not exists (select * from person where person.uid = university.uid);
+
+//Query 4
+select fname, lname from person where person.uid in (select uid from university where city = "Columbia");
+
+//Query 5
+select * from activity where activity_name not in (select a.activity_name from activity as a inner join participated_in as pi on pi.activity_name = a.activity_name); 
+
+//Query 6
