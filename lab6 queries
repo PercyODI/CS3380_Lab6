@@ -16,3 +16,9 @@ select fname, lname from person where person.uid in (select uid from university 
 select * from activity where activity_name not in (select a.activity_name from activity as a inner join participated_in as pi on pi.activity_name = a.activity_name); 
 
 //Query 6
+select pid from participated_in where activity_name = 'running' union select pid from participated_in where activity_name = 'racquetball';
+
+//Query 7
+select fname, lname from person left join body_composition using (pid) where body_composition.age > 30 and body_composition.height > 65;
+//Query 8
+select p.fname, p.lname, b.weight, b.height, b.age from person as p inner join body_composition as b using (pid) order by b.height desc, b.weight, p.lname;

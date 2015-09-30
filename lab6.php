@@ -53,118 +53,28 @@
       $_SESSION['mylink'] = $mylink;
       
       $query_list = array(
-        // Query 1  
-        "SELECT District, Population 
-          FROM city 
-          WHERE Name='Springfield' 
-          ORDER BY Population DESC",
-        // Query 2
-        "SELECT name, district, population 
-          FROM city 
-          WHERE CountryCode = 'BRA' 
-          ORDER BY name",
-        // Query 3
-        "SELECT name, continent, surfacearea AS `Surface Area` 
-          FROM country 
-          ORDER BY surfacearea 
-          LIMIT 20",
-        // Query 4
-        "SELECT name, 
-                continent, 
-                governmentform AS `Form of Government`, 
-                gnp AS `GNP` 
-          FROM country 
-          WHERE gnp > 200000 
-          ORDER BY name",
-        // Query 5
-        "SELECT name 
-          FROM country 
-          WHERE lifeexpectancy IS NOT NULL 
-          ORDER BY lifeexpectancy 
-          LIMIT 10 
-          OFFSET 9",
-        // Query 6
-        "SELECT name 
-          FROM city 
-          WHERE name like 'B%s' 
-          ORDER BY population DESC",
-        // Query 7
-        "SELECT city.name AS `City Name`, 
-                country.name AS `Country Name`, 
-                city.population AS `City Population` 
-          FROM city 
-          INNER JOIN country 
-          ON city.countrycode = country.code 
-          WHERE city.population > 6000000 
-          ORDER BY city.population DESC",
-        // Query 8
-        "SELECT country.name AS `Country Name`, 
-                country.indepyear AS `Year of Independence`, 
-                country.region 
-          FROM country 
-          INNER JOIN countrylanguage 
-          ON country.code = countrylanguage.countrycode 
-          WHERE countrylanguage.language = 'English' 
-          AND countrylanguage.isofficial='T' 
-          ORDER BY country.region, country.name",
-        // Query 9
-        "SELECT countryName AS `Country Name`, 
-                cityName AS `City Name`, 
-                (cityPop / countryPop) AS `Percent of Population In Capital` 
-          FROM 
-            (SELECT country.capital, country.name AS 'countryName', 
-                    city.name AS 'cityName', 
-                    city.population AS 'cityPop', 
-                    country.population AS 'countryPop' 
-            FROM city 
-            INNER JOIN country 
-            ON country.capital = city.id) AS table1 
-          ORDER BY `Percent of Population In Capital` DESC",
-        // Query 10
-        "SELECT language, 
-                name, 
-                ((percentage * population) / 100) AS `Percentage of Speakers` 
-          FROM country 
-          INNER JOIN 
-            (SELECT countrycode, language, percentage 
-            FROM countrylanguage 
-            WHERE isOfficial = 'T') AS languageTable 
-          ON country.code = languageTable.countrycode 
-          ORDER BY `Percentage of Speakers` DESC",
-        // Query 11
-        "SELECT name, 
-                region, 
-                gnp AS `GNP`, 
-                gnpold AS `Old GNP`, 
-                ((gnp - gnpold) / gnpold) AS `Real GNP Change` 
-          FROM country 
-          WHERE gnp IS NOT NULL 
-          AND gnpold IS NOT NULL 
-          ORDER BY `Real GNP Change` DESC");
+        //View 1
+        //create view weight AS SELECT person.pid, fname, lname FROM person INNER JOIN body_composition ON person.pid = body_composition.pid WHERE weight > 140;     
+        "SELECT * FROM weight",
+        //View 2
+        //create view BMI AS SELECT fname, lname, round(703 * weight / pow(height, 2)) AS bmi FROM weight INNER JOIN body_composition ON weight.pid = body_composition.pid WHERE weight > 150;
+        "SELECT * FROM bmi",
+        //Query 3
+        "SELECT university_name, city FROM university WHERE NOT exists (SELECT * FROM person WHERE person.uid = university.uid)",
+        //Query 4
+        "SELECT fname, lname FROM person WHERE person.uid IN (SELECT uid FROM university WHERE city = 'Columbia')",
+        //Query 5
+        "SELECT * FROM activity WHERE activity_name NOT IN (SELECT a.activity_name FROM activity AS a INNER JOIN participated_in AS pi ON pi.activity_name = a.activity_name);",
+        //Query 6
+        "SELECT pid FROM participated_in WHERE activity_name = 'running' union SELECT pid FROM participated_in WHERE activity_name = 'racquetball'",
+        //Query 7
+        "SELECT fname, lname FROM person LEFT JOIN body_composition USING (pid) WHERE body_composition.age > 30 AND body_composition.height > 65",
+        //Query 8
+        "SELECT p.fname, p.lname, b.weight, b.height, b.age FROM person AS p INNER JOIN body_composition AS b USING (pid) ORDER BY b.height DESC, b.weight, p.lname"
+        );
     
     $query_descriptions = array (
-      // Query 1
-      "The district and population of all cities named Springfiled",
-      // Query 2
-      "The name, district, and population of each city in Brazil",
-      // Query 3
-      "The 20 smallest countries by surface area",
-      // Query 4
-      "All countries with a GNP greater than 200,000",
-      // Query 5
-      "The 10th through 19th countries in life expectancy",
-      // Query 6
-      "All cities that start with the letter 'B' and end in the letter 's'",
-      // Query 7
-      "All cities with a population greater than 6 million",
-      // Query 8
-      "All countries where English is an offical language, and their year of independence",
-      // Query 9
-      "Capital cities and the percentage of the county population in the captial",
-      // Query 10
-      "Offical language of all cities and the number of speakers of that language",
-      // Query 11
-      "The GNP for all countries, sorted by the most improved relative wealth"
+      
       );  
       
       function run_sql_query() {
@@ -199,14 +109,14 @@
                   $i = 0;
                   foreach($query_list as $value) {
                     $i == $_POST['sqlDropDown'] ? $selectedTag = "selected" : $selectedTag = "";
-                    echo "<option value='" . $i++ . "' $selectedTag >Query $i</option>";
+                    echo "<option value='" . $i++ . "' $selectedTag >Query 3.3.$i</option>";
                   }
                 ?>
               </select>
             </div>
             <button type="submit" type="submit" name="submit" value="Go" class="btn btn-primary">Submit</button>
           </form>
-        <span class="navbar-brand navbar-right">World Database Queries <i class="fa fa-globe fa-lg"></i></span>
+        <span class="navbar-brand navbar-right">University Athlete Queries <i class="fa fa-futbol-o"></i></span>
       </div>
     </nav>
       
@@ -215,7 +125,7 @@
       <div class="row">
         <?php
           if(isset($_POST['sqlDropDown'])) {
-            echo "<div class='well text-center'><b>" . $query_descriptions[$_POST['sqlDropDown']] . "</b></div>";
+            // echo "<div class='well text-center'><b>" . $query_descriptions[$_POST['sqlDropDown']] . "</b></div>";
             
             echo "<table class='table table-hover table-striped table-cust'>";
             // Runs the sql query, the query is stored in return, 
