@@ -20,5 +20,27 @@ select pid from participated_in where activity_name = 'running' union select pid
 
 //Query 7
 select fname, lname from person left join body_composition using (pid) where body_composition.age > 30 and body_composition.height > 65;
+
+select fname, lname from person where pid in 
+    (select * from 
+        (select pid from body_composition where age > 30) 
+        as age_t join 
+    (select pid from body_composition where height > 65) 
+    as height_t using (pid));
+    
+SELECT age_t.fname, age_t.lname
+FROM (
+    SELECT fname, lname, pid
+    FROM person
+    JOIN body_composition USING (pid)
+    WHERE age > 30
+) as age_t JOIN (
+    SELECT fname, lname, pid
+    FROM person
+    JOIN body_composition USING (pid)
+    WHERE height > 65
+) as height_t USING (pid);
+
+
 //Query 8
 select p.fname, p.lname, b.weight, b.height, b.age from person as p inner join body_composition as b using (pid) order by b.height desc, b.weight, p.lname;

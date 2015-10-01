@@ -27,7 +27,7 @@
       }
       
       .table-cust {
-        max-width: 50%;
+        table-layout: fixed;
         margin: auto;
       }
       
@@ -60,17 +60,61 @@
         //create view BMI AS SELECT fname, lname, round(703 * weight / pow(height, 2)) AS bmi FROM weight INNER JOIN body_composition ON weight.pid = body_composition.pid WHERE weight > 150;
         "SELECT * FROM bmi",
         //Query 3
-        "SELECT university_name, city FROM university WHERE NOT exists (SELECT * FROM person WHERE person.uid = university.uid)",
+        "SELECT university_name AS `University Name`, city 
+        FROM university 
+        WHERE NOT EXISTS (
+          SELECT * 
+          FROM person 
+          WHERE person.uid = university.uid
+        )",
         //Query 4
-        "SELECT fname, lname FROM person WHERE person.uid IN (SELECT uid FROM university WHERE city = 'Columbia')",
+        "SELECT fname AS `First Name`, lname AS `Last Name` 
+        FROM person 
+        WHERE person.uid IN (
+          SELECT uid 
+          FROM university 
+          WHERE city = 'Columbia'
+        )",
         //Query 5
-        "SELECT * FROM activity WHERE activity_name NOT IN (SELECT a.activity_name FROM activity AS a INNER JOIN participated_in AS pi ON pi.activity_name = a.activity_name);",
+        "SELECT * 
+        FROM activity 
+        WHERE activity_name NOT IN (
+          SELECT a.activity_name 
+          FROM activity AS a 
+          INNER JOIN participated_in AS pi 
+          ON pi.activity_name = a.activity_name
+        )",
         //Query 6
-        "SELECT pid FROM participated_in WHERE activity_name = 'running' union SELECT pid FROM participated_in WHERE activity_name = 'racquetball'",
+        "SELECT pid AS `PID` 
+        FROM participated_in 
+        WHERE activity_name = 'running' 
+        UNION 
+        SELECT pid 
+        FROM participated_in 
+        WHERE activity_name = 'racquetball'",
         //Query 7
-        "SELECT fname, lname FROM person LEFT JOIN body_composition USING (pid) WHERE body_composition.age > 30 AND body_composition.height > 65",
+        "SELECT age_t.fname, age_t.lname
+        FROM (
+            SELECT fname, lname, pid
+            FROM person
+            JOIN body_composition USING (pid)
+            WHERE age > 30
+        ) AS age_t JOIN (
+            SELECT fname, lname, pid
+            FROM person
+            JOIN body_composition USING (pid)
+            WHERE height > 65
+        ) AS height_t USING (pid)",
         //Query 8
-        "SELECT p.fname, p.lname, b.weight, b.height, b.age FROM person AS p INNER JOIN body_composition AS b USING (pid) ORDER BY b.height DESC, b.weight, p.lname"
+        "SELECT p.fname AS `First Name`, 
+          p.lname AS `Last Name`, 
+          b.weight, 
+          b.height, 
+          b.age 
+        FROM person AS p 
+        INNER JOIN body_composition AS b 
+        USING (pid) 
+        ORDER BY b.height DESC, b.weight, p.lname"
         );
     
     $query_descriptions = array (
@@ -127,7 +171,7 @@
           if(isset($_POST['sqlDropDown'])) {
             // echo "<div class='well text-center'><b>" . $query_descriptions[$_POST['sqlDropDown']] . "</b></div>";
             
-            echo "<table class='table table-hover table-striped table-cust'>";
+            echo "<div class='col-md-4 col-md-offset-4'><table class='table table-hover table-striped table-cust'>";
             // Runs the sql query, the query is stored in return, 
             // The column names are stored in columns
             list($column_names, $query_data) = run_sql_query();
@@ -148,12 +192,12 @@
               }
               echo "\n</tr>\n";
             }
+            echo "</table></div>";
           } else {
             echo "<div class='jumbotron text-center'><h2>Please Select a Query to Begin</h2></div>";
           }
           
         ?>
-        </table>
       </div>
     </div>
     <nav class = "navbar navbar-default navbar-fixed-bottom nav-bottom-cust">
